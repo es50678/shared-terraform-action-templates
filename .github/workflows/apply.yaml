@@ -1,0 +1,32 @@
+name: terraform-apply
+on:
+  workflow_call:
+    inputs:
+      tf_workspace:
+        required: true
+        type: string
+      terraform_version:
+        required: true
+        type: string
+    secrets:
+      tf_cloud_token:
+        required: true
+env:
+  TF_WORKSPACE: ${{ inputs.tf_workspace }}
+jobs:
+  apply:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.tf_cloud_token }}
+          terraform_version: ${{ inputs.terraform_version }}
+      - name: Terraform Init
+        id: init
+        run: TF_LOG=info terraform init
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply

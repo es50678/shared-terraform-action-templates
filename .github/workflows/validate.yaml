@@ -1,0 +1,74 @@
+name: terraform-validate
+on:
+  workflow_call:
+    inputs:
+      terraform_version:
+        required: true
+        type: string
+      tflint_version:
+        required: false
+        type: string
+    secrets:
+      tf_cloud_token:
+        required: true
+jobs:
+  tflint:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+      - name: terraform init
+        run: terraform init -backend=false
+      - name: give temporary permissions
+        run: sudo chown -R root:root $GITHUB_WORKSPACE
+      - name: tflint
+        uses: reviewdog/action-tflint@v1.10.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          fail_on_error: true
+          filter_mode: file
+          tflint_version: ${{ inputs.tflint_version }}
+          level: warning
+  terraform-validate:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+      - name: terraform init
+        run: terraform init -backend=false
+      - name: terraform validate
+        run: terraform validate
+  misspell:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: give temporary permissions
+        run: sudo chown -R root:root $GITHUB_WORKSPACE
+      - name: misspell
+        uses: reviewdog/action-misspell@v1.7.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          locale: "US"
+          level: warning
+          filter_mode: file
+  fmt:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: setup terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+          cli_config_credentials_token: ${{ secrets.tf_cloud_token }}
+      - name: terraform format
+        run: terraform fmt -recursive -check -diff
