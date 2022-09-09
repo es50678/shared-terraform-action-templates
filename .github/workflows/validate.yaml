@@ -21,6 +21,7 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: ${{ inputs.terraform_version }}
+          cli_config_credentials_token: ${{ secrets.tf_cloud_token }}
       - name: terraform init
         run: terraform init -backend=false
       - name: give temporary permissions
@@ -42,6 +43,7 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: ${{ inputs.terraform_version }}
+          cli_config_credentials_token: ${{ secrets.tf_cloud_token }}
       - name: terraform init
         run: terraform init -backend=false
       - name: terraform validate
