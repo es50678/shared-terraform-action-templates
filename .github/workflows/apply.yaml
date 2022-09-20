@@ -8,6 +8,10 @@ on:
       terraform_version:
         required: true
         type: string
+      auto_apply:
+        required: false
+        type: string
+        default: true
     secrets:
       tf_cloud_token:
         required: true
@@ -27,6 +31,12 @@ jobs:
       - name: Terraform Init
         id: init
         run: TF_LOG=info terraform init
-      - name: Terraform Apply
-        id: apply
+      - name: Terraform Auto-apply
+        if: inputs.auto_apply == true
+        id: auto-apply
         run: terraform apply -auto-approve
+      - name: Terraform Apply
+        if: inputs.auto_apply != true
+        id: apply
+        run: terraform apply 
+
