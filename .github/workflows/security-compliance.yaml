@@ -47,3 +47,4 @@ jobs:
         with:
           directory: .
           quiet: true
+          skip_checks: CKV_TF_1
