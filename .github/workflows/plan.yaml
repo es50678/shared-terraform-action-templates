@@ -40,18 +40,24 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            # https://github.com/mshick/add-pr-comment/issues/93 rounded down
+            const MAX_LENGTH = 65000; 
+            const planInput = process.env.PLAN;
             const output = `\`${{inputs.tf_workspace}}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
             <details><summary>Show Plan</summary>
 
             \`\`\`
-            ${process.env.PLAN}
+            ${planInput}
             \`\`\`
 
             </details>
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            const outputs = [];
+            const splitPlan = 
+            
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
